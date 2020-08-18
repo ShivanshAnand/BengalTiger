@@ -20,7 +20,7 @@ import model.ConnectionManager;
  * @author hp
  */
 @WebServlet(urlPatterns = {"/ts"})
-public class TestServlet extends HttpServlet {
+public class Authentication extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
