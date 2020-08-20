@@ -14,7 +14,9 @@ public class AuthenticationManager {
         cm = new ConnectionManager();
     }
     
-    public void putUser(String firstName, String lastName, String email, String password) {
+    public boolean putUser(String firstName, String lastName, String email, String password) {
+        
+        boolean s = true;
         
         Connection conn = cm.getConnection();
         
@@ -29,7 +31,7 @@ public class AuthenticationManager {
                 st.executeUpdate(q);
             } catch(SQLException e) {
                 System.out.println(e.getMessage());
-              
+                s = false;
             } finally {
                 try {
                     conn.close();        
@@ -37,7 +39,11 @@ public class AuthenticationManager {
                     System.out.println(e.getMessage());
                 }
             }
+        } else {
+            s = false;
         }
+        
+        return s;
     }
     
     public boolean doesUserExists(String email, String password) {
@@ -48,7 +54,6 @@ public class AuthenticationManager {
             String q = "SELECT uid, first_name, last_name, email FROM user WHERE " +
                         "email=" + "\"" + email + "\"" + 
                         " AND password=" + "\"" + password + "\"";
-            System.err.println(q);
             try {
                 Statement st = conn.createStatement();
                 ResultSet rs = st.executeQuery(q);

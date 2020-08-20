@@ -7,6 +7,7 @@
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,84 +16,64 @@ import javax.servlet.http.HttpServletResponse;
 import model.AuthenticationManager;
 import model.ConnectionManager;
 
-/**
- *
- * @author hp
- */
-@WebServlet(urlPatterns = {"/ts"})
-public class Authentication extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet TestServlet</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet TestServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
+@WebServlet(urlPatterns = {"/auth"})
+public class Authentication extends HttpServlet {
+    
+    
+    private void handler(boolean n, String email, String password, String mode, HttpServletRequest request, HttpServletResponse response) {
+        if(n) {
+            
+            request.setAttribute("email", email);
+            request.setAttribute("password", password);
+            request.setAttribute("mode", mode);
+            
+            try {
+                RequestDispatcher rd = getServletContext().getRequestDispatcher("/profile");
+                rd.forward(request, response);
+            } catch(IOException e) {
+                System.err.println(e.getMessage());
+            } catch(ServletException e) {
+                System.err.println(e.getMessage());
+            }
+            
+        } else {
+              try {
+                RequestDispatcher rd = getServletContext().getRequestDispatcher("/auth-html.html");
+                rd.forward(request, response);
+            } catch(IOException e) {
+                System.err.println(e.getMessage());
+            } catch(ServletException e) {
+                System.err.println(e.getMessage());
+            }          
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         PrintWriter out = response.getWriter();
-        AuthenticationManager am = new AuthenticationManager();
-        boolean i = am.doesUserExists("JC", "PASSJC");
-        if(i)
-            out.print("Yes !");
-        else
-            out.print("No :(");
             
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
-
+        
+        String mode = request.getParameter("mode");
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+        
+        AuthenticationManager am = new AuthenticationManager();
+        
+        if(mode.equals("sign_in")) {
+            handler(am.doesUserExists(email, password), email, password, mode, request, response);
+        } else if(mode.equals("sign_up")) {
+            String firstName = request.getParameter("first_name");
+            String lastName = request.getParameter("last_name");
+            boolean s = am.putUser(firstName, lastName, email, password);
+            handler(s, email, password, mode, request, response);
+        }
     }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
 
 }
