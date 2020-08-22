@@ -28,12 +28,16 @@ public class FormRender extends HttpServlet {
             throws ServletException, IOException {
         
         int fid = Integer.parseInt(request.getParameter("fid"));
+        String title = request.getParameter("title");
+        
+        if(title == null)
+            title = "Form";
         
         DbUtils dbu = new DbUtils();
         
         ArrayList<String> arr = dbu.getRenderableForm(fid);
         
-        renderForm(arr, request, response);
+        renderForm(fid, title, arr, request, response);
         
     }
 
@@ -42,7 +46,7 @@ public class FormRender extends HttpServlet {
             throws ServletException, IOException {
     }
     
-    public void renderForm(ArrayList<String> arr, HttpServletRequest request, HttpServletResponse response) throws IOException{
+    public void renderForm(int fid, String title, ArrayList<String> arr, HttpServletRequest request, HttpServletResponse response) throws IOException{
 
         PrintWriter out = response.getWriter();
         
@@ -70,11 +74,13 @@ public class FormRender extends HttpServlet {
         out.println("</head>");
         out.println("<body style=\" margin: 16px \">");
         
-        out.println("<form method=\"post\" action=\"post\" style=\"margin : 16px 25vw; width : 50vw;\">");
+        out.println("<h2 style=\"margin : 16px 25vw; width: 50vw;\">" + title + "</h2>");
+        
+        out.println("<form method=\"post\" action=\"response-saver?fid=" + fid + "\" style=\"margin : 16px 25vw; width : 50vw;\">");
         
         for(int i=0; i<arr.size() - 1; i+=2) {
             out.println(arr.get(i));
-            out.println(arr.get(i+1) + "<br />");        
+            out.println(arr.get(i+1) + "<br /><br />");        
         }
         
         out.println("<br /><input type=\"submit\" >");

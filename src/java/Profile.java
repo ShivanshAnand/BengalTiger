@@ -80,10 +80,14 @@ public class Profile extends HttpServlet {
         
         for(Form f : arr) {
             out.println("<li>");
-            out.println("<b>" + f.getTitle() + "<u>" + f.getFid() + "</u></b>");
-            out.println("<a href=\"form-builder.jsp?title=" +  f.getTitle() + "&uid=" + f.getUid() + "&fid=" + f.getFid() + "\"" + "target=\"_blank\">");
+            out.println("<b>" + f.getTitle() + "<u> id = " + f.getFid() + "</u></b>");
+            out.println("<a href=\"form-builder.jsp?title=" +  f.getTitle() + "&uid=" + f.getUid() + "&fid=" + f.getFid() + "&title=" + f.getTitle() + "\"" + "target=\"_blank\">");
             out.println("Edit");
             out.println("</a>");
+            out.print(" / ");
+            out.println("<a href=\"form-render?fid=" + f.getFid() + "&title=" + f.getTitle() + "\" target=\"_blank2\">" + "View </a>");
+            out.println(" / ");
+            out.println("<a href=\"response-viewer?fid=" + f.getFid() + "&title=" + f.getTitle() + "\" target=\"_blank3\">" + "View Responses </a>");
             out.println("</li>");
         }
         

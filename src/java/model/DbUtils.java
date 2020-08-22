@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import pojo.Form;
+import pojo.Response;
 import pojo.User;
 
 /**
@@ -254,7 +255,7 @@ public class DbUtils {
                     q = "SELECT ques FROM questions WHERE bid = " + i.intValue() + " AND fid = " + fid;
                     rs = st.executeQuery(q);
                     rs.next();
-                    ques.add("<h3>" + rs.getString("ques") + "</h3>");
+                    ques.add("<input type=\"text\" name=\"ques\" readonly style=\"font-size : 24px; outline : none; border:none; color : black; font-weight:bold;\" value=\"" + rs.getString("ques") + "\"</input></br>");
                 }
                 
                 for(Integer i : arr) {
@@ -264,13 +265,13 @@ public class DbUtils {
                     int t = rs.getInt("tool_type");
                     String add = "";
                     if(t == 1) {
-                        add = "<input type=\"text\" class=\"full-inp\"/>";
+                        add = "<input type=\"text\" name=\"resp\" class=\"full-inp\"/>";
                     } else if(t == 2) {
-                        add = "<input type=\"text\"  class=\"full-inp\"/>";
+                        add = "<input type=\"text\" name=\"resp\" class=\"full-inp\"/>";
                     } else if(t == 3 ) {
-                        add = "<textarea class=\"full-inp\"></textarea>";
+                        add = "<textarea name=\"resp\" class=\"full-inp\"></textarea>";
                     } else if(t == 5) {
-                        add = "<input type=\"range\" class=\"full-inp\" />";
+                        add = "<input type=\"range\" name=\"resp\" class=\"full-inp\" />";
                     }
                     ans.add(add);
                 }
@@ -301,6 +302,87 @@ public class DbUtils {
         
         return new ArrayList<>();
                
+    }
+    
+    public boolean saveResponse(int fid, String ques[], String ans[]) {
+        
+        Connection conn = cm.getConnection();
+        boolean s = true;
+                
+        if( conn != null) {
+            try {
+                
+                Statement st = conn.createStatement();
+                String q = "";
+                
+                for(int i=0; i<ques.length; i++) {
+                    q = "INSERT INTO responses (fid, question, answer, last_row) VALUES (" +
+                                fid + "," +
+                                "\"" + ques[i] + "\"" + "," +
+                                "\"" + ans[i] + "\"" + "," + 
+                                0 + ")";
+                    
+                    st.executeUpdate(q);
+                }
+                
+                q = "INSERT INTO responses (fid, last_row) VALUES (" + fid + "," + 1 + ")"; 
+                                
+                conn.createStatement();
+                st.executeUpdate(q);
+                            
+            } catch(SQLException e) {
+                s = false;
+                System.out.println(e.getMessage());
+            } finally {
+                if(conn != null) {
+                    try {
+                        conn.close(); }
+                    catch(SQLException e) {
+                        System.out.println(e.getMessage()); }
+                            }
+            }
+        } 
+        
+        return s;
+        
+    }
+    
+    public ArrayList<Response> getAllResponses(int fid) {
+        
+        Connection conn = cm.getConnection();
+        
+        ArrayList<Response> respArr = new ArrayList<>();
+                
+        if( conn != null) {
+            try {
+                
+                Statement st = conn.createStatement();
+                String q = "SELECT question, answer, last_row FROM responses WHERE fid = " + fid;
+                
+                ResultSet rs = st.executeQuery(q);
+                
+                while(rs.next()) {
+                    String ques = rs.getString("question");
+                    String ans = rs.getString("answer");
+                    int lastRow = rs.getInt("last_row");
+                    Response res = new Response(ques, ans, lastRow);
+                    respArr.add(res);
+                }
+                            
+            } catch(SQLException e) {
+                System.out.println(e.getMessage());
+            } finally {
+                if(conn != null) {
+                    try {
+                        conn.close(); }
+                    catch(SQLException e) {
+                        System.out.println(e.getMessage()); }
+                            }
+            }
+        } 
+        
+        return respArr;
+        
     }
     
 }
